@@ -4,7 +4,9 @@ viewprobe creates visualizations for a certain eval.
 
 import re
 import numpy
-from scipy.misc import imread, imresize, imsave
+# from scipy.misc import imread, imresize, imsave
+from imageio import imread, imsave
+from PIL import Image
 import visualize.expdir as expdir
 import visualize.bargraph as bargraph
 import settings
@@ -92,11 +94,14 @@ def generate_html_summary(ds, layer, maxfeature=None, features=None, thresholds=
                 row = x // gridwidth
                 col = x % gridwidth
                 image = imread(ds.filename(index))
-                mask = imresize(features[index][unit], image.shape[:2], mode='F')
+                # mask = imresize(features[index][unit], image.shape[:2], mode='F')
+                mask = np.array(Image.fromarray(features[index][unit]).resize(image.shape[:2]))
+
                 mask = mask > thresholds[unit]
                 vis = (mask[:, :, numpy.newaxis] * 0.8 + 0.2) * image
                 if vis.shape[:2] != (imsize, imsize):
-                    vis = imresize(vis, (imsize, imsize))
+                    # vis = imresize(vis, (imsize, imsize))
+                    vis = np.array(Image.fromarray(vis).resize(imsize, imsize))
                 tiled[row*(imsize+gap):row*(imsize+gap)+imsize,
                       col*(imsize+gap):col*(imsize+gap)+imsize,:] = vis
             imsave(ed.filename('html/' + imfn), tiled)
@@ -116,7 +121,7 @@ def generate_html_summary(ds, layer, maxfeature=None, features=None, thresholds=
             (imfn, imscale))
         html.append('</div') # Leave off > to eat spaces
     html.append('></div>')
-    html.extend([html_suffix]);
+    html.extend([html_suffix])
     with open(ed.filename('html/%s.html' % expdir.fn_safe(layer)), 'w') as f:
         f.write('\n'.join(html))
 

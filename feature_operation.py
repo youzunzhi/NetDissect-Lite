@@ -1,7 +1,8 @@
 
 import os
 from torch.autograd import Variable as V
-from scipy.misc import imresize
+# from scipy.misc import imresize
+from PIL import Image
 import numpy as np
 import torch
 import settings
@@ -63,12 +64,15 @@ class FeatureOperator:
             input.div_(255.0 * 0.224)
             if settings.GPU:
                 input = input.cuda()
-            input_var = V(input,volatile=True)
-            logit = model.forward(input_var)
+            # input_var = V(input,volatile=True)
+            input_var = input
+            with torch.no_grad():
+                logit = model.forward(input_var)
             while np.isnan(logit.data.cpu().max()):
                 print("nan") #which I have no idea why it will happen
                 del features_blobs[:]
-                logit = model.forward(input_var)
+                with torch.no_grad():
+                    logit = model.forward(input_var)
             if maxfeatures[0] is None:
                 # initialize the feature variable
                 for i, feat_batch in enumerate(features_blobs):
@@ -171,7 +175,8 @@ class FeatureOperator:
                 for unit_id in range(units):
                     feature_map = features[img_index][unit_id]
                     if feature_map.max() > threshold[unit_id]:
-                        mask = imresize(feature_map, (concept_map['sh'], concept_map['sw']), mode='F')
+                        # mask = imresize(feature_map, (concept_map['sh'], concept_map['sw']), mode='F')
+                        mask = np.array(Image.fromarray(feature_map).resize(concept_map['sh'], concept_map['sw']))
                         #reduction = int(round(settings.IMG_SIZE / float(concept_map['sh'])))
                         #mask = upsample.upsampleL(fieldmap, feature_map, shape=(concept_map['sh'], concept_map['sw']), reduction=reduction)
                         indexes = np.argwhere(mask > threshold[unit_id])
