@@ -3,7 +3,7 @@ from loader.model_loader import loadmodel
 from feature_operation import hook_feature,FeatureOperator
 from visualize.report import generate_html_summary
 from util.clean import clean
-
+print('a')
 fo = FeatureOperator()
 model = loadmodel(hook_feature)
 
