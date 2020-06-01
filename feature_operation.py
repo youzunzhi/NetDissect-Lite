@@ -11,8 +11,7 @@ import util.upsample as upsample
 import util.vecquantile as vecquantile
 import multiprocessing.pool as pool
 from loader.data_loader import load_csv
-# from loader.data_loader import SegmentationData, SegmentationPrefetcher
-from loader.mff.mff_data import get_eval_dataloader
+from loader.data_loader import SegmentationData, SegmentationPrefetcher
 features_blobs = []
 def hook_feature(module, input, output):
     features_blobs.append(output.data.cpu().numpy())
@@ -23,10 +22,9 @@ class FeatureOperator:
     def __init__(self):
         if not os.path.exists(settings.OUTPUT_FOLDER):
             os.makedirs(os.path.join(settings.OUTPUT_FOLDER, 'image'))
-        self.dataloader = get_eval_dataloader()
-        # self.data = SegmentationData(settings.DATA_DIRECTORY, categories=settings.CATAGORIES)
-        # self.loader = SegmentationPrefetcher(self.data,categories=['image'],once=True,batch_size=settings.BATCH_SIZE)
-        self.mean = [109.5388,118.6897,124.6901]
+        self.data = SegmentationData(settings.DATA_DIRECTORY, categories=settings.CATAGORIES)
+        self.loader = SegmentationPrefetcher(self.data,categories=['image'],once=True,batch_size=settings.BATCH_SIZE)
+        # self.mean = [109.5388,118.6897,124.6901]
 
     def feature_extraction(self, model=None, memmap=True):
         loader = self.loader
