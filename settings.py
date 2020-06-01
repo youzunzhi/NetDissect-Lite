@@ -16,18 +16,19 @@ else:
 
 ######### global settings  #########
 GPU = torch.cuda.is_available()             # running on GPU is highly suggested
-TEST_MODE = torch.cuda.is_available()       # turning on the testmode means the code will run on a small dataset.
+TEST_MODE = not torch.cuda.is_available()       # turning on the testmode means the code will run on a small dataset.
 CLEAN = True                                # set to "True" if you want to clean the temporary large files after generating result
-MODEL_NAME = 'mff_resnet'                   # model arch: mff_resnet
+MODEL_NAME = 'MFF_resnet'                   # model arch: mff_resnet
 MODEL_WEIGHTS_FILE = model_dicts[MODEL_NAME]
 DATASET = 'nyu'                             # model trained on: nyu
-DATA_DIRECTORY = 'dataset/nyuv2'
+DATASET_FILE = 'data/nyudv2_test.txt'
+# DATA_DIRECTORY = 'dataset/nyuv2'
 QUANTILE = 0.005                            # the threshold used for activation
 SEG_THRESHOLD = 0.04                        # the threshold used for visualization
 SCORE_THRESHOLD = 0.04                      # the threshold used for IoU score (in HTML file)
 TOPN = 10                                   # to show top N image with highest activation for each unit
 PARALLEL = 1                                # how many process is used for tallying (Experiments show that 1 is the fastest)
-CATAGORIES = ["object", "part","scene","texture","color"] # concept categories that are chosen to detect: "object", "part", "scene", "material", "texture", "color"
+CATAGORIES = ["sem"] # concept categories that are chosen to detect: "object", "part", "scene", "material", "texture", "color"
 OUTPUT_FOLDER = f"result/{MODEL_NAME}_{DATASET}" # result will be stored in this folder
 
 ########### sub settings ###########
@@ -73,14 +74,14 @@ OUTPUT_FOLDER = f"result/{MODEL_NAME}_{DATASET}" # result will be stored in this
 #         MODEL_FILE = 'zoo/whole_resnet50_places365_python36.pth.tar'
 #         MODEL_PARALLEL = False
 
-if MODEL_NAME == 'mff_resnet':
+if MODEL_NAME == 'MFF_resnet':
     FEATURE_NAMES = ['MFF']
 else:
     raise NotImplementedError
 
 if TEST_MODE:
     WORKERS = 1
-    BATCH_SIZE = 4
+    BATCH_SIZE = 2
     TALLY_BATCH_SIZE = 2
     TALLY_AHEAD = 1
     INDEX_FILE = 'index_sm.csv' # copy some lines(as you like) from file 'dataset/broden1_224/index.csv'.
