@@ -21,6 +21,7 @@ CLEAN = True                                # set to "True" if you want to clean
 MODEL_NAME = 'mff_resnet'                   # model arch: mff_resnet
 MODEL_WEIGHTS_FILE = model_dicts[MODEL_NAME]
 DATASET = 'nyu'                             # model trained on: nyu
+DATA_DIRECTORY = 'dataset/nyuv2'
 QUANTILE = 0.005                            # the threshold used for activation
 SEG_THRESHOLD = 0.04                        # the threshold used for visualization
 SCORE_THRESHOLD = 0.04                      # the threshold used for IoU score (in HTML file)
