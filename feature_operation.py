@@ -56,7 +56,7 @@ class FeatureOperator:
 
 
         num_batches = (len(loader.indexes) + loader.batch_size - 1) / loader.batch_size
-        for batch_idx,batch in enumerate(loader.tensor_batches(bgr_mean=self.mean)):
+        for batch_idx,batch in enumerate(loader.tensor_batches(bgr_mean=None)):
             del features_blobs[:]
             input = batch[0]
             batch_size = len(input)

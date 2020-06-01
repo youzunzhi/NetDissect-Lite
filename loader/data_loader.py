@@ -9,7 +9,8 @@ import settings
 import numpy as np
 from collections import OrderedDict
 # from scipy.misc import imread
-from imageio import imread
+# from imageio import imread
+from PIL import Image
 from multiprocessing import Pool, cpu_count
 from multiprocessing.pool import ThreadPool
 from scipy.ndimage.interpolation import zoom
@@ -609,8 +610,28 @@ def prefetch_worker(d):
     segs['i'] = j
     segs['fn'] = fn
     if categories is None or 'image' in categories:
-        segs['image'] = imread(fn)
+        # segs['image'] = imread(fn)
+        image = Image.open(fn)
+        image = image.resize((320, 240), Image.BILINEAR)
+        image = centerCrop(image, [304, 228])
+        segs['image'] = np.array(image)
     return segs
+
+
+def centerCrop(image, size):
+    w1, h1 = image.size
+
+    tw, th = size
+
+    if w1 == tw and h1 == th:
+        return image
+
+    x1 = int(round((w1 - tw) / 2.))
+    y1 = int(round((h1 - th) / 2.))
+
+    image = image.crop((x1, y1, tw + x1, th + y1))
+
+    return image
 
 def scale_segmentation(segmentation, dims, crop=False):
     '''
