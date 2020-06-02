@@ -41,7 +41,7 @@ def bar_graph_svg(ed, blob,tally_result=None,
                     barheight=100,barwidth=12,
                     order=None,
                     show_labels=True,
-                    threshold=0.04,
+                    threshold=0.01,
                     rendered_order=None,
                     save=None):
     # ['unit', 'category', 'label', 'score']
