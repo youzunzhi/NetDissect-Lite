@@ -86,8 +86,8 @@ if TEST_MODE:
     INDEX_FILE = 'index_sm.csv' # copy some lines(as you like) from file 'dataset/broden1_224/index.csv'.
     OUTPUT_FOLDER += "_test"
 else:
-    WORKERS = 12
-    BATCH_SIZE = 128
-    TALLY_BATCH_SIZE = 16
-    TALLY_AHEAD = 4
+    WORKERS = 1
+    BATCH_SIZE = 16
+    TALLY_BATCH_SIZE = 2
+    TALLY_AHEAD = 1
     INDEX_FILE = 'index.csv'
