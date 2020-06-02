@@ -2,6 +2,7 @@
 import os
 from torch.autograd import Variable as V
 # from scipy.misc import imresize
+from torchvision import transforms
 from PIL import Image
 import numpy as np
 import torch
@@ -25,6 +26,8 @@ class FeatureOperator:
         self.data = SegmentationData(settings.DATA_DIRECTORY, categories=settings.CATAGORIES)
         self.loader = SegmentationPrefetcher(self.data,categories=['image'],once=True,batch_size=settings.BATCH_SIZE)
         # self.mean = [109.5388,118.6897,124.6901]
+        self.rgb_mean = [0.485, 0.456, 0.406]
+        self.rgb_std = [0.229, 0.224, 0.225]
 
     def feature_extraction(self, model=None, memmap=True):
         loader = self.loader
@@ -53,16 +56,13 @@ class FeatureOperator:
             if skip:
                 return wholefeatures, maxfeatures
 
-
-
         num_batches = (len(loader.indexes) + loader.batch_size - 1) / loader.batch_size
-        for batch_idx,batch in enumerate(loader.tensor_batches(bgr_mean=None)):
+        for batch_idx,batch in enumerate(loader.tensor_batches(rgb_mean=self.rgb_mean, rgb_std=self.rgb_std)):
             del features_blobs[:]
             input = batch[0]
             batch_size = len(input)
             print('extracting feature from batch %d / %d' % (batch_idx+1, num_batches))
-            input = torch.from_numpy(input[:, ::-1, :, :].copy())
-            input.div_(255.0 * 0.224)
+            input = torch.from_numpy(input)
             if settings.GPU:
                 input = input.cuda()
             # input_var = V(input,volatile=True)

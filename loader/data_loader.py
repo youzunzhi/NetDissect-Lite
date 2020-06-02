@@ -533,22 +533,22 @@ class SegmentationPrefetcher:
             self.pool.terminate()
             raise
 
-    def fetch_tensor_batch(self, bgr_mean=None, global_labels=False):
+    def fetch_tensor_batch(self, rgb_mean=None, rgb_std=None, global_labels=False):
         '''Iterator for batches as arrays of tensors.'''
         batch = self.fetch_batch()
-        return self.form_caffe_tensors(batch, bgr_mean, global_labels)
+        return self.form_caffe_tensors(batch, rgb_mean, rgb_std, global_labels)
 
-    def tensor_batches(self, bgr_mean=None, global_labels=False):
+    def tensor_batches(self, rgb_mean=None, rgb_std=None, global_labels=False):
         '''Returns a single batch as an array of tensors, one per category.'''
         while True:
             batch = self.fetch_tensor_batch(
-                    bgr_mean=bgr_mean, global_labels=global_labels)
+                    rgb_mean=rgb_mean, rgb_std=rgb_std, global_labels=global_labels)
             if batch is None:
                 return
                 # raise StopIteration
             yield batch
 
-    def form_caffe_tensors(self, batch, bgr_mean=None, global_labels=False):
+    def form_caffe_tensors(self, batch, rgb_mean=None, rgb_std=None, global_labels=False):
         # Assemble a batch in [{'cat': data,..},..] format into
         # an array of batch tensors, the first for the image, and the
         # remaining for each category in self.categories, in order.
@@ -562,7 +562,7 @@ class SegmentationPrefetcher:
                 if cat == 'image':
                     # Normalize image with right RGB order and mean
                     batches[c].append(normalize_image(
-                        record[cat], bgr_mean))
+                        record[cat], rgb_mean, rgb_std))
                 elif global_labels:
                     batches[c].append(normalize_label(
                         record[cat], default_shape, flatten=True))
@@ -701,7 +701,7 @@ def wants(what, option):
         return True
     return what in option
 
-def normalize_image(rgb_image, bgr_mean):
+def normalize_image(rgb_image, rgb_mean, rgb_std):
     """
     Load input image and preprocess for Caffe:
     - cast to float
@@ -712,9 +712,11 @@ def normalize_image(rgb_image, bgr_mean):
     img = numpy.array(rgb_image, dtype=numpy.float32)
     if (img.ndim == 2):
         img = numpy.repeat(img[:,:,None], 3, axis = 2)
-    img = img[:,:,::-1]
-    if bgr_mean is not None:
-        img -= bgr_mean
+    img /= 255.
+    if rgb_mean is not None:
+        img -= rgb_mean
+    if rgb_std is not None:
+        img /= rgb_std
     img = img.transpose((2,0,1))
     return img
 
@@ -742,7 +744,22 @@ def normalize_label(label_data, shape, flatten=False):
                 return label_data
         return label_data[numpy.newaxis]
 
+
+def make_index_csv():
+    # import csv
+    fn = 'index.csv'
+    image_names_file = '/Users/youzunzhi/pro/EVA/code/MDE_Dissect/data/nyudv2_test.txt'
+    with open(fn, 'w') as f:
+        f.write('image,split,ih,iw,sh,sw,sem\n')
+        with open(image_names_file, 'r') as imf:
+            for l in imf.readlines():
+                im_name = l.split(' ')[0]
+                im_index = int(im_name.split('_')[-1].split('.')[0])
+                write_line = f'test/{im_name},test,480,640,480,640,test_sem_annot/new_nyu_class13_{im_index+1:04d}.png\n'
+                f.write(write_line)
+
 if __name__ == '__main__':
-    data = SegmentationData('broden1_227')
-    pd = SegmentationPrefetcher(data,categories=data.category_names()+['image'],once=True)
-    bs = pd.batches().next()
+    # data = SegmentationData('broden1_227')
+    # pd = SegmentationPrefetcher(data,categories=data.category_names()+['image'],once=True)
+    # bs = pd.batches().next()
+    make_index_csv()
