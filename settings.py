@@ -75,7 +75,7 @@ OUTPUT_FOLDER = f"result/{MODEL_NAME}_{DATASET}" # result will be stored in this
 #         MODEL_PARALLEL = False
 
 if MODEL_NAME == 'MFF_resnet':
-    FEATURE_NAMES = ['D', 'MFF']
+    FEATURE_NAMES = ['MFF']
 else:
     raise NotImplementedError
 
