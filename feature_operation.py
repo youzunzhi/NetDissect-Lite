@@ -136,7 +136,7 @@ class FeatureOperator:
     def tally_job(args):
         features, data, threshold, tally_labels, tally_units, tally_units_cat, tally_both, start, end = args
         units = features.shape[1]
-        size_RF = (settings.IMG_SIZE / features.shape[2], settings.IMG_SIZE / features.shape[3])
+        size_RF = (settings.IMG_SIZE[0] / features.shape[2], settings.IMG_SIZE[1] / features.shape[3])
         fieldmap = ((0, 0), size_RF, size_RF)
         pd = SegmentationPrefetcher(data, categories=data.category_names(),
                                     once=True, batch_size=settings.TALLY_BATCH_SIZE,
@@ -178,7 +178,7 @@ class FeatureOperator:
                     feature_map = features[img_index][unit_id]
                     if feature_map.max() > threshold[unit_id]:
                         # mask = imresize(feature_map, (concept_map['sh'], concept_map['sw']), mode='F')
-                        mask = np.array(Image.fromarray(feature_map).resize((concept_map['sh'], concept_map['sw']), resample=Image.BILINEAR))
+                        mask = np.array(Image.fromarray(feature_map).resize((concept_map['sw'], concept_map['sh']), resample=Image.BILINEAR))
                         #reduction = int(round(settings.IMG_SIZE / float(concept_map['sh'])))
                         #mask = upsample.upsampleL(fieldmap, feature_map, shape=(concept_map['sh'], concept_map['sw']), reduction=reduction)
                         indexes = np.argwhere(mask > threshold[unit_id])

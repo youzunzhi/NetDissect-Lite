@@ -200,8 +200,12 @@ class SegmentationData(AbstractSegmentation):
                 if isinstance(channel, int):
                     out[i] = channel
                 else:
-                    rgb = imread(os.path.join(directory, 'images', channel))
-                    out[i] = rgb[:,:,0] + rgb[:,:,1] * 256
+                    # rgb = imread(os.path.join(directory, 'images', channel))
+                    # out[i] = rgb[:,:,0] + rgb[:,:,1] * 256
+                    rgb = Image.open(os.path.join(directory, 'images', channel))
+                    rgb = rgb.resize((320, 240), Image.BILINEAR)
+                    rgb = centerCrop(rgb, [304, 228])
+                    out[i] = np.array(rgb)
             result[cat] = out
         return result, (row['sh'], row['sw'])
 
@@ -755,7 +759,7 @@ def make_index_csv():
             for l in imf.readlines():
                 im_name = l.split(' ')[0]
                 im_index = int(im_name.split('_')[-1].split('.')[0])
-                write_line = f'test/{im_name},test,480,640,480,640,test_sem_annot/new_nyu_class13_{im_index+1:04d}.png\n'
+                write_line = f'test/{im_name},test,228,304,228,304,test_sem_annot/new_nyu_class13_{im_index+1:04d}.png\n'
                 f.write(write_line)
 
 if __name__ == '__main__':

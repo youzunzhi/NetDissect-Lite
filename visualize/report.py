@@ -88,22 +88,22 @@ def generate_html_summary(ds, layer, maxfeature=None, features=None, thresholds=
                 print('Visualizing %s unit %d' % (layer, unit))
             # Generate the top-patch image
             tiled = numpy.full(
-                ((imsize + gap) * gridheight - gap,
-                 (imsize + gap) * gridwidth - gap, 3), 255, dtype='uint8')
+                ((imsize[0] + gap) * gridheight - gap,
+                 (imsize[1] + gap) * gridwidth - gap, 3), 255, dtype='uint8')
             for x, index in enumerate(top[unit]):
                 row = x // gridwidth
                 col = x % gridwidth
                 image = imread(ds.filename(index))
                 # mask = imresize(features[index][unit], image.shape[:2], mode='F')
-                mask = np.array(Image.fromarray(features[index][unit]).resize(image.shape[:2]))
+                mask = np.array(Image.fromarray(features[index][unit]).resize((image.shape[1], image.shape[0])))
 
                 mask = mask > thresholds[unit]
                 vis = (mask[:, :, numpy.newaxis] * 0.8 + 0.2) * image
                 if vis.shape[:2] != (imsize, imsize):
                     # vis = imresize(vis, (imsize, imsize))
-                    vis = np.array(Image.fromarray(vis).resize(imsize, imsize))
-                tiled[row*(imsize+gap):row*(imsize+gap)+imsize,
-                      col*(imsize+gap):col*(imsize+gap)+imsize,:] = vis
+                    vis = np.array(Image.fromarray(vis.astype(np.uint8)).resize((imsize[1], imsize[0])))
+                tiled[row*(imsize[0]+gap):row*(imsize[0]+gap)+imsize[0],
+                      col*(imsize[1]+gap):col*(imsize[1]+gap)+imsize[1],:] = vis
             imsave(ed.filename('html/' + imfn), tiled)
         # Generate the wrapper HTML
         graytext = ' lowscore' if float(record['score']) < settings.SCORE_THRESHOLD else ''
