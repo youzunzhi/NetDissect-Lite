@@ -5,7 +5,7 @@ import cv2
 import torch
 
 def make_depth_bin(relative):
-    depth_dir = '/Users/youzunzhi/pro/datasets/nyuv2_depth_data/bts_splits/test'
+    depth_dir = '/work/u2263506/nyu2_data/data/bts_splits/test' if torch.cuda.is_available() else '/Users/youzunzhi/pro/datasets/nyuv2_depth_data/bts_splits/test'
     if relative:
         save_dir = '../dataset/nyuv2/images/test_rel_annot/'
     else:
