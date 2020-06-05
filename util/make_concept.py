@@ -11,7 +11,7 @@ def make_depth_bin(relative):
     else:
         save_dir = '../dataset/nyuv2/images/test_abs_annot/'
     os.makedirs(save_dir, exist_ok=True)
-    dataset_file = '/home/u2263506/MDE_Dissect/data/nyudv2_test.txt' if torch.cuda.is_available() '/Users/youzunzhi/pro/EVA/code/MDE_Dissect/data/nyudv2_test.txt'
+    dataset_file = '/home/u2263506/MDE_Dissect/data/nyudv2_test.txt' if torch.cuda.is_available() else '/Users/youzunzhi/pro/EVA/code/MDE_Dissect/data/nyudv2_test.txt'
     with open(dataset_file, 'r') as f:
         for l in f.readlines():
             depth_path = os.path.join(depth_dir, l.split()[1])
