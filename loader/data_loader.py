@@ -281,8 +281,6 @@ class SegmentationData(AbstractSegmentation):
         # For each label, find the category with maximum coverage.
         result = []
         for i in range(self.label_size(None)):
-            print(f"categories:{categories}")
-            print(f"catmap:{catmap}")
             maxcov, maxcat = max(
                 (self.coverage(cat, catmap[cat][i])
                  if catmap[cat][i] else 0, ic)
