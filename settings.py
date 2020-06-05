@@ -28,8 +28,8 @@ SEG_THRESHOLD = 0.04                        # the threshold used for visualizati
 SCORE_THRESHOLD = 0.04                      # the threshold used for IoU score (in HTML file)
 TOPN = 10                                   # to show top N image with highest activation for each unit
 PARALLEL = 1                                # how many process is used for tallying (Experiments show that 1 is the fastest)
-CATAGORIES = ["sem"] # concept categories that are chosen to detect: "object", "part", "scene", "material", "texture", "color"
-OUTPUT_FOLDER = f"result/{MODEL_NAME}_{DATASET}" # result will be stored in this folder
+CATAGORIES = ["abs"]                        # concept categories that are chosen to detect: sem|abs|rel
+OUTPUT_FOLDER = f"result/{MODEL_NAME}_{DATASET}_{CATAGORIES[0]}" # result will be stored in this folder
 
 ########### sub settings ###########
 # In most of the case, you don't have to change them.

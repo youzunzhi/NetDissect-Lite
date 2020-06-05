@@ -37,15 +37,20 @@ def load_csv(filename, readfields=None):
             readfields.extend(reader.fieldnames)
     return result
 
+
 class AbstractSegmentation:
     def all_names(self, category, j):
         raise NotImplementedError
+
     def size(self, split=None):
         return 0
+
     def filename(self, i):
         raise NotImplementedError
+
     def metadata(self, i):
         return self.filename(i)
+
     @classmethod
     def resolve_segmentation(cls, m):
         return {}
@@ -64,7 +69,7 @@ class AbstractSegmentation:
         utilizing metadata and resolve_segmentation.
         '''
         segs = self.resolve_segmentation(
-                self.metadata(i), categories=[category])
+            self.metadata(i), categories=[category])
         if category not in segs:
             return 0
         data = segs[category]
@@ -99,8 +104,8 @@ class SegmentationData(AbstractSegmentation):
         self.label = build_dense_label_array(label_data)
         # Filter out images with insufficient data
         filter_fn = partial(
-                index_has_all_data if require_all else index_has_any_data,
-                categories=categories)
+            index_has_all_data if require_all else index_has_any_data,
+            categories=categories)
         self.image = [row for row in self.image if filter_fn(row)]
         # Build dense remapping arrays for labels, so that you can
         # get dense ranges of labels for each category.
@@ -111,9 +116,9 @@ class SegmentationData(AbstractSegmentation):
             with open(os.path.join(directory, 'c_%s.csv' % cat)) as f:
                 c_data = [decode_label_dict(r) for r in csv.DictReader(f)]
             self.category_unmap[cat], self.category_map[cat] = (
-                    build_numpy_category_map(c_data))
+                build_numpy_category_map(c_data))
             self.category_label[cat] = build_dense_label_array(
-                    c_data, key='code')
+                c_data, key='code')
 
         self.labelcat = self.onehot(self.primary_categories_per_index())
 
@@ -151,7 +156,6 @@ class SegmentationData(AbstractSegmentation):
         result = np.zeros(arr.shape + (length,))
         result[list(np.indices(arr.shape)) + [arr]] = 1
         return result
-
 
     def all_names(self, category, j):
         '''All English synonyms for the given label'''
@@ -278,13 +282,12 @@ class SegmentationData(AbstractSegmentation):
         result = []
         for i in range(self.label_size(None)):
             maxcov, maxcat = max(
-                    (self.coverage(cat, catmap[cat][i])
-                        if catmap[cat][i] else 0, ic)
-                    for ic, cat in enumerate(categories))
+                (self.coverage(cat, catmap[cat][i])
+                 if catmap[cat][i] else 0, ic)
+                for ic, cat in enumerate(categories))
             result.append(maxcat)
         # Return the max-coverage cateogry for each label.
         return numpy.array(result)
-
 
     def segmentation_data(self, category, i, c=0, full=False, out=None):
         '''
@@ -305,20 +308,20 @@ class SegmentationData(AbstractSegmentation):
         if isinstance(channel, int):
             if not full:
                 channel = self.category_map[category][channel]
-            out[:,:] = channel  # Single-label for the whole image
+            out[:, :] = channel  # Single-label for the whole image
             return out
         png = imread(os.path.join(self.directory, 'images', channel))
         if full:
             # Full case: just combine png channels.
-            out[...] = png[:,:,0] + png[:,:,1] * 256
+            out[...] = png[:, :, 0] + png[:, :, 1] * 256
         else:
             # Dense case: combine png channels and apply the category map.
             catmap = self.category_map[category]
-            out[...] = catmap[png[:,:,0] + png[:,:,1] * 256]
+            out[...] = catmap[png[:, :, 0] + png[:, :, 1] * 256]
         return out
 
     def full_segmentation_data(self, i,
-            categories=None, max_depth=None, out=None):
+                               categories=None, max_depth=None, out=None):
         '''
         Returns a 3-d numpy tensor with segmentation data for the ith image,
         with multiple layers represnting multiple lables for each pixel.
@@ -330,7 +333,7 @@ class SegmentationData(AbstractSegmentation):
             groups = [d for cat, d in row.items() if cat in categories and d]
         else:
             groups = [d for cat, d in row.items() if d and (
-                cat not in self.meta_categories)]
+                    cat not in self.meta_categories)]
         depth = sum(len(c) for c in groups)
         if max_depth is not None:
             depth = min(depth, max_depth)
@@ -345,8 +348,8 @@ class SegmentationData(AbstractSegmentation):
                     out[i] = channel
                 else:
                     png = imread(
-                            os.path.join(self.directory, 'images', channel))
-                    out[i] = png[:,:,0] + png[:,:,1] * 256
+                        os.path.join(self.directory, 'images', channel))
+                    out[i] = png[:, :, 0] + png[:, :, 1] * 256
                 i += 1
                 if i == depth:
                     return out
@@ -355,6 +358,7 @@ class SegmentationData(AbstractSegmentation):
 
     def category_index_map(self, category):
         return numpy.array(self.category_map[category])
+
 
 def build_dense_label_array(label_data, key='number', allow_none=False):
     '''
@@ -367,13 +371,16 @@ def build_dense_label_array(label_data, key='number', allow_none=False):
     # Fill in none
     if not allow_none:
         example = label_data[0]
+
         def make_empty(k):
             return dict((c, k if c is key else type(v)())
-                    for c, v in example.items())
+                        for c, v in example.items())
+
         for i, d in enumerate(result):
             if d is None:
                 result[i] = dict(make_empty(i))
     return result
+
 
 def build_numpy_category_map(map_data, key1='code', key2='number'):
     '''
@@ -381,19 +388,20 @@ def build_numpy_category_map(map_data, key1='code', key2='number'):
     Output: array such that a[number] = the row with the given number.
     '''
     results = list(numpy.zeros((max([d[key] for d in map_data]) + 1),
-            dtype=numpy.int16) for key in (key1, key2))
+                               dtype=numpy.int16) for key in (key1, key2))
     for d in map_data:
         results[0][d[key1]] = d[key2]
         results[1][d[key2]] = d[key1]
     return results
+
 
 def decode_label_dict(row):
     result = {}
     for key, val in row.items():
         if key == 'category':
             result[key] = dict((c, int(n))
-                for c, n in [re.match('^([^(]*)\(([^)]*)\)$', f).groups()
-                    for f in val.split(';')])
+                               for c, n in [re.match('^([^(]*)\(([^)]*)\)$', f).groups()
+                                            for f in val.split(';')])
         elif key == 'name':
             result[key] = val
         elif key == 'syns':
@@ -405,6 +413,7 @@ def decode_label_dict(row):
         else:
             result[key] = val
     return result
+
 
 def decode_index_dict(row):
     result = {}
@@ -421,11 +430,13 @@ def decode_index_dict(row):
             result[key] = item
     return result
 
+
 def index_has_any_data(row, categories):
     for c in categories:
         for data in row[c]:
             if data: return True
     return False
+
 
 def index_has_all_data(row, categories):
     for c in categories:
@@ -438,6 +449,7 @@ def index_has_all_data(row, categories):
             return False
     return True
 
+
 class SegmentationPrefetcher:
     '''
     SegmentationPrefetcher will prefetch a bunch of segmentation
@@ -445,9 +457,10 @@ class SegmentationPrefetcher:
     around while the files get opened and decoded.  Just request
     batches of images and segmentations calling fetch_batch().
     '''
+
     def __init__(self, segmentation, split=None, randomize=False,
-            segmentation_shape=None, categories=None, once=False,
-            start=None, end=None, batch_size=4, ahead=4, thread=False):
+                 segmentation_shape=None, categories=None, once=False,
+                 start=None, end=None, batch_size=4, ahead=4, thread=False):
         '''
         Constructor arguments:
         segmentation: The AbstractSegmentation to load.
@@ -483,7 +496,7 @@ class SegmentationPrefetcher:
         self.indexes = range(start, end)
         if split:
             self.indexes = [i for i in self.indexes
-                    if segmentation.split(i) == split]
+                            if segmentation.split(i) == split]
         if self.randomize:
             self.random.shuffle(self.indexes)
         self.index = 0
@@ -491,19 +504,19 @@ class SegmentationPrefetcher:
         self.segmentation_shape = segmentation_shape
         # Get dense catmaps
         self.catmaps = [
-                segmentation.category_index_map(cat) if cat != 'image' else None
-                for cat in categories]
+            segmentation.category_index_map(cat) if cat != 'image' else None
+            for cat in categories]
 
     def next_job(self):
         if self.index < 0:
             return None
         j = self.indexes[self.index]
         result = (j,
-                self.segmentation.__class__,
-                self.segmentation.metadata(j),
-                self.segmentation.filename(j),
-                self.categories,
-                self.segmentation_shape)
+                  self.segmentation.__class__,
+                  self.segmentation.metadata(j),
+                  self.segmentation.filename(j),
+                  self.categories,
+                  self.segmentation_shape)
         self.index += 1
         if self.index >= len(self.indexes):
             if self.once:
@@ -546,7 +559,7 @@ class SegmentationPrefetcher:
         '''Returns a single batch as an array of tensors, one per category.'''
         while True:
             batch = self.fetch_tensor_batch(
-                    rgb_mean=rgb_mean, rgb_std=rgb_std, global_labels=global_labels)
+                rgb_mean=rgb_mean, rgb_std=rgb_std, global_labels=global_labels)
             if batch is None:
                 return
                 # raise StopIteration
@@ -600,6 +613,7 @@ class SegmentationPrefetcher:
         self.pool.close()
         self.poool.cancel_join_thread()
 
+
 def prefetch_worker(d):
     if d is None:
         return None
@@ -637,6 +651,7 @@ def centerCrop(image, size):
 
     return image
 
+
 def scale_segmentation(segmentation, dims, crop=False):
     '''
     Zooms a 2d or 3d segmentation to the given dims, using nearest neighbor.
@@ -648,10 +663,10 @@ def scale_segmentation(segmentation, dims, crop=False):
     if peel:
         segmentation = segmentation[numpy.newaxis]
     levels = segmentation.shape[0]
-    result = numpy.zeros((levels, ) + dims,
-            dtype=segmentation.dtype)
+    result = numpy.zeros((levels,) + dims,
+                         dtype=segmentation.dtype)
     ratio = (1,) + tuple(res / float(orig)
-            for res, orig in zip(result.shape[1:], segmentation.shape[1:]))
+                         for res, orig in zip(result.shape[1:], segmentation.shape[1:]))
     if not crop:
         safezoom(segmentation, ratio, output=result, order=0)
     else:
@@ -660,12 +675,13 @@ def scale_segmentation(segmentation, dims, crop=False):
         hmargin = (segmentation.shape[0] - height) // 2
         width = int(round(dims[1] / ratio))
         wmargin = (segmentation.shape[1] - height) // 2
-        safezoom(segmentation[:, hmargin:hmargin+height,
-            wmargin:wmargin+width],
-            (1, ratio, ratio), output=result, order=0)
+        safezoom(segmentation[:, hmargin:hmargin + height,
+                 wmargin:wmargin + width],
+                 (1, ratio, ratio), output=result, order=0)
     if peel:
         result = result[0]
     return result
+
 
 def safezoom(array, ratio, output=None, order=0):
     '''Like numpy.zoom, but does not crash when the first dimension
@@ -675,9 +691,9 @@ def safezoom(array, ratio, output=None, order=0):
         array = array.astype(numpy.float32)
     if array.shape[0] == 1:
         if output is not None:
-            output = output[0,...]
-        result = zoom(array[0,...], ratio[1:],
-                output=output, order=order)
+            output = output[0, ...]
+        result = zoom(array[0, ...], ratio[1:],
+                      output=output, order=order)
         if output is None:
             output = result[numpy.newaxis]
     else:
@@ -686,11 +702,13 @@ def safezoom(array, ratio, output=None, order=0):
             output = result
     return output.astype(dtype)
 
+
 def setup_sigint():
     import threading
     if not isinstance(threading.current_thread(), threading._MainThread):
         return None
     return signal.signal(signal.SIGINT, signal.SIG_IGN)
+
 
 def restore_sigint(original):
     import threading
@@ -700,10 +718,12 @@ def restore_sigint(original):
         original = signal.SIG_DFL
     signal.signal(signal.SIGINT, original)
 
+
 def wants(what, option):
     if option is None:
         return True
     return what in option
+
 
 def normalize_image(rgb_image, rgb_mean, rgb_std):
     """
@@ -715,14 +735,15 @@ def normalize_image(rgb_image, rgb_mean, rgb_std):
     """
     img = numpy.array(rgb_image, dtype=numpy.float32)
     if (img.ndim == 2):
-        img = numpy.repeat(img[:,:,None], 3, axis = 2)
+        img = numpy.repeat(img[:, :, None], 3, axis=2)
     img /= 255.
     if rgb_mean is not None:
         img -= rgb_mean
     if rgb_std is not None:
         img /= rgb_std
-    img = img.transpose((2,0,1))
+    img = img.transpose((2, 0, 1))
     return img
+
 
 def normalize_label(label_data, shape, flatten=False):
     """
@@ -738,7 +759,7 @@ def normalize_label(label_data, shape, flatten=False):
             else:
                 return (numpy.ones(shape, dtype=numpy.int16) *
                         numpy.asarray(label_data, dtype=numpy.int16)
-                            [:, numpy.newaxis, numpy.newaxis])
+                        [:, numpy.newaxis, numpy.newaxis])
         return numpy.full(shape, label_data, dtype=numpy.int16)
     else:
         if dims == 3:
@@ -754,13 +775,27 @@ def make_index_csv():
     fn = 'index.csv'
     image_names_file = '/Users/youzunzhi/pro/EVA/code/MDE_Dissect/data/nyudv2_test.txt'
     with open(fn, 'w') as f:
-        f.write('image,split,ih,iw,sh,sw,sem\n')
+        f.write('image,split,ih,iw,sh,sw,sem,abs,rel\n')
         with open(image_names_file, 'r') as imf:
             for l in imf.readlines():
                 im_name = l.split(' ')[0]
                 im_index = int(im_name.split('_')[-1].split('.')[0])
-                write_line = f'test/{im_name},test,228,304,228,304,test_sem_annot/new_nyu_class13_{im_index+1:04d}.png\n'
+                write_line = f'test/{im_name},test,228,304,228,304,test_sem_annot/new_nyu_class13_{im_index + 1:04d}.png,test_abs_annot/sync_depth_{im_index:05d}.png,test_rel_annot/sync_depth_{im_index:05d}.png\n'
                 f.write(write_line)
+
+
+def print_label_etc():
+    # label.csv
+    for i in range(10):
+        print(f"{i + 14},abs-{i},abs(0),0,0,")
+    for i in range(10):
+        print(f"{i + 24},rel-{i},rel(0),0,0,")
+    # c_abs/c_rel
+    for i in range(10):
+        print(f"{i},{i + 14},abs-{i},0,0")
+    for i in range(10):
+        print(f"{i},{i + 24},rel-{i},0,0")
+
 
 if __name__ == '__main__':
     # data = SegmentationData('broden1_227')
