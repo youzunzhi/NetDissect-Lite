@@ -70,4 +70,4 @@ def recursive_glob(rootdir=".", suffix=""):
 
 
 if __name__ == '__main__':
-    make_depth_bin(relative=True)
+    make_depth_bin(relative=False)
