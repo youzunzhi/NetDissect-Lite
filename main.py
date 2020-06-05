@@ -13,11 +13,11 @@ print('End of STEP 1')
 
 for layer_id,layer in enumerate(settings.FEATURE_NAMES):
 ############ STEP 2: calculating threshold ############
-    thresholds = fo.quantile_threshold(features[layer_id],savepath="quantile.npy")
+    thresholds = fo.quantile_threshold(features[layer_id],savepath=f"quantile_{layer}.npy")
     print('End of STEP 2')
 
 ############ STEP 3: calculating IoU scores ###########
-    tally_result = fo.tally(features[layer_id],thresholds,savepath="tally.csv")
+    tally_result = fo.tally(features[layer_id],thresholds,savepath=f"tally_{layer}.csv")
     print('End of STEP 3')
 
 ############ STEP 4: generating results ###############
