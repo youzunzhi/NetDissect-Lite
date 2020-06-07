@@ -21,14 +21,14 @@ CLEAN = True                                # set to "True" if you want to clean
 MODEL_NAME = 'MFF_resnet'                   # model arch: mff_resnet
 MODEL_WEIGHTS_FILE = model_dicts[MODEL_NAME]
 DATASET = 'nyu'                             # model trained on: nyu
-DATA_DIRECTORY = 'dataset/nyuv2'
+CATAGORIES = ["sem"]                        # concept categories that are chosen to detect: sem|abs|rel
+DATA_DIRECTORY = f'dataset/nyuv2/{CATAGORIES[0]}_csv'
 IMG_SIZE = [228, 304]
 QUANTILE = 0.005                            # the threshold used for activation
 SEG_THRESHOLD = 0.04                        # the threshold used for visualization
 SCORE_THRESHOLD = 0.04                      # the threshold used for IoU score (in HTML file)
 TOPN = 10                                   # to show top N image with highest activation for each unit
 PARALLEL = 1                                # how many process is used for tallying (Experiments show that 1 is the fastest)
-CATAGORIES = ["abs"]                        # concept categories that are chosen to detect: sem|abs|rel
 OUTPUT_FOLDER = f"result/{MODEL_NAME}_{DATASET}_{CATAGORIES[0]}" # result will be stored in this folder
 
 ########### sub settings ###########
@@ -76,6 +76,7 @@ OUTPUT_FOLDER = f"result/{MODEL_NAME}_{DATASET}_{CATAGORIES[0]}" # result will b
 
 if MODEL_NAME == 'MFF_resnet':
     FEATURE_NAMES = ['MFF', 'D']
+    # FEATURE_NAMES = ['MFF']
 else:
     raise NotImplementedError
 

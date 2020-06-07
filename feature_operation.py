@@ -198,8 +198,8 @@ class FeatureOperator:
 
     def tally(self, features, threshold, savepath=''):
         csvpath = os.path.join(settings.OUTPUT_FOLDER, savepath)
-        if savepath and os.path.exists(csvpath):
-            return load_csv(csvpath)
+        # if savepath and os.path.exists(csvpath):
+        #     return load_csv(csvpath)
 
         units = features.shape[1]
         labels = len(self.data.label)

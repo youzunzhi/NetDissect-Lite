@@ -101,6 +101,12 @@ class SegmentationData(AbstractSegmentation):
         categories = self.category.keys()
         with open(os.path.join(directory, 'label.csv')) as f:
             label_data = [decode_label_dict(r) for r in csv.DictReader(f)]
+            # label_data = []
+            # for r in csv.DictReader(f):
+            #     decoded_r = decode_label_dict(r)
+            #     for k in decoded_r['category'].keys():
+            #         if k in categories:
+            #             label_data.append(decoded_r)
         self.label = build_dense_label_array(label_data)
         # Filter out images with insufficient data
         filter_fn = partial(
@@ -122,26 +128,26 @@ class SegmentationData(AbstractSegmentation):
 
         self.labelcat = self.onehot(self.primary_categories_per_index())
 
-    def primary_categories_per_index(ds):
-        '''
-        Returns an array of primary category numbers for each label, where the
-        first category listed in ds.category_names is given category number 0.
-        '''
-        catmap = {}
-        categories = ds.category_names()
-        for cat in categories:
-            imap = ds.category_index_map(cat)
-            if len(imap) < ds.label_size(None):
-                imap = np.concatenate((imap, np.zeros(
-                    ds.label_size(None) - len(imap), dtype=imap.dtype)))
-            catmap[cat] = imap
-        result = []
-        for i in range(ds.label_size(None)):
-            maxcov, maxcat = max(
-                (ds.coverage(cat, catmap[cat][i]) if catmap[cat][i] else 0, ic)
-                for ic, cat in enumerate(categories))
-            result.append(maxcat)
-        return np.array(result)
+    # def primary_categories_per_index(ds):
+    #     '''
+    #     Returns an array of primary category numbers for each label, where the
+    #     first category listed in ds.category_names is given category number 0.
+    #     '''
+    #     catmap = {}
+    #     categories = ds.category_names()
+    #     for cat in categories:
+    #         imap = ds.category_index_map(cat)
+    #         if len(imap) < ds.label_size(None):
+    #             imap = np.concatenate((imap, np.zeros(
+    #                 ds.label_size(None) - len(imap), dtype=imap.dtype)))
+    #         catmap[cat] = imap
+    #     result = []
+    #     for i in range(ds.label_size(None)):
+    #         maxcov, maxcat = max(
+    #             (ds.coverage(cat, catmap[cat][i]) if catmap[cat][i] else 0, ic)
+    #             for ic, cat in enumerate(categories))
+    #         result.append(maxcat)
+    #     return np.array(result)
 
     def onehot(self, arr, minlength=None):
         '''
@@ -171,7 +177,7 @@ class SegmentationData(AbstractSegmentation):
 
     def filename(self, i):
         '''The filename of the ith jpeg (original image).'''
-        return os.path.join(self.directory, 'images', self.image[i]['image'])
+        return os.path.join(self.directory, '../images', self.image[i]['image'])
 
     def split(self, i):
         '''Which split contains item i.'''
@@ -206,10 +212,10 @@ class SegmentationData(AbstractSegmentation):
                 else:
                     # rgb = imread(os.path.join(directory, 'images', channel))
                     # out[i] = rgb[:,:,0] + rgb[:,:,1] * 256
-                    rgb = Image.open(os.path.join(directory, 'images', channel))
-                    rgb = rgb.resize((320, 240), Image.BILINEAR)
-                    rgb = centerCrop(rgb, [304, 228])
-                    out[i] = np.array(rgb)
+                    seg = Image.open(os.path.join(directory, '../images', channel))
+                    seg = seg.resize((320, 240), Image.NEAREST)
+                    seg = centerCrop(seg, [304, 228])
+                    out[i] = np.array(seg)
             result[cat] = out
         return result, (row['sh'], row['sw'])
 
@@ -770,19 +776,64 @@ def normalize_label(label_data, shape, flatten=False):
         return label_data[numpy.newaxis]
 
 
-def make_index_csv():
+def make_index_csv_trash():
     # import csv
     fn = 'index.csv'
-    image_names_file = '/Users/youzunzhi/pro/EVA/code/MDE_Dissect/data/nyudv2_test.txt'
+    image_names_file_test = '/Users/youzunzhi/pro/EVA/code/MDE_Dissect/data/nyudv2_test.txt'
+    image_names_file_train = '/Users/youzunzhi/pro/EVA/source_code/bts/train_test_inputs/nyudepthv2_train_files_with_gt.txt'
     with open(fn, 'w') as f:
-        f.write('image,split,ih,iw,sh,sw,sem,abs,rel\n')
-        with open(image_names_file, 'r') as imf:
+        # f.write('image,split,ih,iw,sh,sw,sem\n')
+        f.write('image,split,ih,iw,sh,sw,abs\n')
+        # f.write('image,split,ih,iw,sh,sw,rel\n')
+        with open(image_names_file_test, 'r') as imf:
             for l in imf.readlines():
                 im_name = l.split(' ')[0]
                 im_index = int(im_name.split('_')[-1].split('.')[0])
-                write_line = f'test/{im_name},test,228,304,228,304,test_sem_annot/new_nyu_class13_{im_index + 1:04d}.png,test_abs_annot/sync_depth_{im_index:05d}.png,test_rel_annot/sync_depth_{im_index:05d}.png\n'
+                # for sem
+                # write_line = f'test/{im_name},test,228,304,228,304,test_sem_annot/new_nyu_class13_{im_index + 1:04d}.png\n'
+                # for abs
+                write_line = f'test/{im_name},test,228,304,228,304,test_abs_annot/depth_bin_abs10_{im_index:05d}.png\n'
+                # for rel
+                # write_line = f'test/{im_name},test,228,304,228,304,test_rel_annot/depth_bin_rel10_{im_index:05d}.png\n'
+                f.write(write_line)
+        # training set
+        with open(image_names_file_train, 'r') as imf:
+            for l in imf.readlines():
+                im_name, depth_name = l.split(' ')[:2]
+                # im_index = int(im_name.split('_')[-1].split('.')[0])
+                bin_name = depth_name.replace('sync_depth_', 'depth_bin_abs10_')
+                # for abs
+                write_line = f'train{im_name},train,228,304,228,304,train_abs_annot{bin_name}\n'
+                # for rel
+                # write_line = f'train{im_name},train,228,304,228,304,train_rel_annot/depth_bin_rel10_{im_index:05d}.png\n'
                 f.write(write_line)
 
+def make_sem_index_csv():
+    fn = 'index.csv'
+    with open(fn, 'w') as f:
+        f.write('image,split,ih,iw,sh,sw,sem\n')
+        for dataset in ['test', 'train']:
+            if dataset == 'test':
+                dir_name = 'dataset/nyuv2/images/test/'
+            elif dataset == 'train':
+                dir_name = 'dataset/nyuv2/images/train/'
+            for rgb_name in recursive_glob(dir_name, '.jpg'):
+                rgb_index = int(rgb_name.split('/')[-1].split('.')[0].split('_')[-1])
+                write_line = f"{rgb_name[rgb_name.find(dataset):]},{dataset},228,304,228,304,{dataset}_sem_annot/new_nyu_class13_{rgb_index + 1:04d}.png\n"
+                f.write(write_line)
+
+
+def recursive_glob(rootdir=".", suffix=""):
+    """Performs recursive glob with given suffix and rootdir
+        :param rootdir is the root directory
+        :param suffix is the suffix to be searched
+    """
+    return [
+        os.path.join(looproot, filename)
+        for looproot, _, filenames in os.walk(rootdir)
+        for filename in filenames
+        if filename.endswith(suffix)
+    ]
 
 def print_label_etc():
     # label.csv
