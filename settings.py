@@ -16,7 +16,7 @@ else:
 
 ######### global settings  #########
 GPU = torch.cuda.is_available()             # running on GPU is highly suggested
-TEST_MODE = not torch.cuda.is_available()       # turning on the testmode means the code will run on a small dataset.
+TEST_MODE = not torch.cuda.is_available()       # turning on the testmode means the code will run on a small nyu_dataset.
 CLEAN = True                                # set to "True" if you want to clean the temporary large files after generating result
 MODEL_NAME = 'MFF_resnet'                   # model arch: mff_resnet
 MODEL_WEIGHTS_FILE = model_dicts[MODEL_NAME]
@@ -33,7 +33,7 @@ OUTPUT_FOLDER = f"result/{MODEL_NAME}_{DATASET}_{CATAGORIES[0]}" # result will b
 
 ########### sub settings ###########
 # In most of the case, you don't have to change them.
-# DATA_DIRECTORY: where broaden dataset locates
+# DATA_DIRECTORY: where broaden nyu_dataset locates
 # IMG_SIZE: image size, alexnet use 227x227
 # NUM_CLASSES: how many labels in final prediction
 # FEATURE_NAMES: the array of layer where features will be extracted
@@ -55,7 +55,7 @@ if TEST_MODE:
     BATCH_SIZE = 2
     TALLY_BATCH_SIZE = 2
     TALLY_AHEAD = 1
-    INDEX_FILE = 'index_sm.csv' # copy some lines(as you like) from file 'dataset/broden1_224/index.csv'.
+    INDEX_FILE = 'index_sm.csv' # copy some lines(as you like) from file 'nyu_dataset/broden1_224/index.csv'.
     OUTPUT_FOLDER += "_test"
 else:
     WORKERS = 1

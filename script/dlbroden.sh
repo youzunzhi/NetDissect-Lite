@@ -5,12 +5,12 @@ set -e
 cd "$(dirname "$(dirname "$(readlink -f "$0")")")"
 
 # Download broden1_224
-if [ ! -f dataset/broden1_224/index.csv ]
+if [ ! -f nyu_dataset/broden1_224/index.csv ]
 then
 
 echo "Downloading broden1_224"
-mkdir -p dataset
-pushd dataset
+mkdir -p nyu_dataset
+pushd nyu_dataset
 wget --progress=bar \
    http://netdissect.csail.mit.edu/data/broden1_224.zip \
    -O broden1_224.zip
@@ -21,12 +21,12 @@ popd
 fi
 
 # Download broden1_227
-if [ ! -f dataset/broden1_227/index.csv ]
+if [ ! -f nyu_dataset/broden1_227/index.csv ]
 then
 
 echo "Downloading broden1_227"
-mkdir -p dataset
-pushd dataset
+mkdir -p nyu_dataset
+pushd nyu_dataset
 wget --progress=bar \
    http://netdissect.csail.mit.edu/data/broden1_227.zip \
    -O broden1_227.zip

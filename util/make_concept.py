@@ -44,13 +44,38 @@ def make_sem_index_csv():
         f.write('image,split,ih,iw,sh,sw,sem\n')
         for dataset in ['test', 'train']:
             if dataset == 'test':
-                dir_name = 'dataset/nyuv2/images/test/'
+                dir_name = 'nyu_dataset/nyuv2/images/test/'
             elif dataset == 'train':
-                dir_name = 'dataset/nyuv2/images/train/'
+                dir_name = 'nyu_dataset/nyuv2/images/train/'
             for rgb_name in recursive_glob(dir_name, '.jpg'):
                 rgb_index = int(rgb_name.split('/')[-1].split('.')[0].split('_')[-1])
                 write_line = f"{rgb_name[rgb_name.find(dataset):]},{dataset},228,304,228,304,{dataset}_sem_annot/new_nyu_class13_{rgb_index + 1:04d}.png\n"
                 f.write(write_line)
+
+
+def make_depth_bin_index_csv(nyu_dataset, abs_or_rel):
+    """
+    :param nyu_dataset: dense|bts_train|official
+    :param abs_or_rel: abs|rel
+    :return:
+    """
+    root_dir = '/home/u2263506/NetDissect-Lite/dataset/nyuv2/' if torch.cuda.is_available() else '/Users/youzunzhi/pro/EVA/code/NetDissect-Lite/dataset/nyuv2/'
+    fn = os.path.join(os.path.join(root_dir, f'{abs_or_rel}_csv'), f'{nyu_dataset}_{abs_or_rel}_index.csv')
+    print(fn)
+    with open(fn, 'w') as f:
+        f.write(f'image,split,ih,iw,sh,sw,{abs_or_rel}\n')
+        bin_dir = os.path.join(root_dir, f'images/{nyu_dataset}_{abs_or_rel}_annot/')
+        if nyu_dataset == 'dense':
+            rgb_dir = '/work/u2263506/nyu2_data/nyu2_dense' if torch.cuda.is_available() else '/Users/youzunzhi/pro/datasets/nyuv2_depth_data/nyu2_dense'
+            for bin_fname in recursive_glob(bin_dir, 'png'):
+                rgb_fname = os.path.join(rgb_dir, bin_fname[bin_fname.find(f'{nyu_dataset}_{abs_or_rel}_annot')+len(f'{nyu_dataset}_{abs_or_rel}_annot/'):]).replace('png', 'jpg')
+                # print(rgb_fname)
+                dataset = 'train' if bin_fname.find('train') != -1 else 'test'
+                write_line = f"{rgb_fname},{dataset},228,304,228,304,{bin_fname}\n"
+                f.write(write_line)
+        else:
+            raise NotImplementedError
+        print('end')
 
 
 def recursive_glob(rootdir=".", suffix=""):
@@ -79,24 +104,24 @@ def print_label_etc():
         print(f"{i},{i + 24},rel-{i},0,0")
 
 
-def make_depth_bin_concept(dataset, abs_or_rel):
+def make_depth_bin_concept(nyu_dataset, abs_or_rel):
     """
-    :param dataset: dense|bts_train|official
+    :param nyu_dataset: dense|bts_train|official
     :param abs_or_rel: abs|rel
     :return:
     """
-    assert dataset in ['dense', 'bts_train', 'official']
+    assert nyu_dataset in ['dense', 'bts_train', 'official']
     assert abs_or_rel in ['abs', 'rel']
-    if dataset == 'dense':
+    if nyu_dataset == 'dense':
         depth_dir = '/work/u2263506/nyu2_data/nyu2_dense' if torch.cuda.is_available() else '/Users/youzunzhi/pro/datasets/nyuv2_depth_data/nyu2_dense'
     else:
         raise NotImplementedError
-    save_dir = f'../dataset/nyuv2/images/{dataset}_{abs_or_rel}_annot/'
+    save_dir = f'../dataset/nyuv2/images/{nyu_dataset}_{abs_or_rel}_annot/'
     os.makedirs(save_dir, exist_ok=True)
     for depth_fname in recursive_glob(depth_dir, 'png'):
         if depth_fname.find('colors') != -1:  # in dense/test dir, rgb also end with png
             continue
-        depth = get_meters_depth(depth_fname, dataset)
+        depth = get_meters_depth(depth_fname, nyu_dataset)
         labels = get_labels_sid(depth, abs_or_rel)
         save_fname = os.path.join(save_dir, depth_fname[len(depth_dir)+1:])
         dir_to_make = save_fname[:save_fname.find(save_fname.split('/')[-1])]
@@ -118,44 +143,6 @@ def get_meters_depth(depth_fname, dataset):
         raise NotImplementedError
 
     return depth
-
-
-def make_depth_bin_trash(relative):
-    # testing set
-    depth_dir = '/work/u2263506/nyu2_data/data/bts_splits/test' if torch.cuda.is_available() else '/Users/youzunzhi/pro/datasets/nyuv2_depth_data/bts_splits/test'
-    if relative:
-        save_dir = '../dataset/nyuv2/images/test_rel_annot/'
-    else:
-        save_dir = '../dataset/nyuv2/images/test_abs_annot/'
-    os.makedirs(save_dir, exist_ok=True)
-    dataset_file = '/home/u2263506/MDE_Dissect/data/nyudv2_test.txt' if torch.cuda.is_available() else '/Users/youzunzhi/pro/EVA/code/MDE_Dissect/data/nyudv2_test.txt'
-    with open(dataset_file, 'r') as f:
-        for l in f.readlines():
-            depth_path = os.path.join(depth_dir, l.split()[1])
-            depth = np.array(Image.open(depth_path)).astype(np.float)
-            depth /= 1000.
-            labels = get_labels_sid(depth, relative=relative, ordinal_c=10)
-            save_fname = os.path.join(save_dir, depth_path.split('/')[-1])
-            # Image.fromarray(labels).save(save_fname)
-            cv2.imwrite(save_fname, labels)
-
-    # training set
-    depth_dir = '/work/u2263506/nyu2_data/data/bts_splits/train' if torch.cuda.is_available() else '/Users/youzunzhi/pro/datasets/nyuv2_depth_data/bts_splits/train'
-    if relative:
-        save_dir = '../dataset/nyuv2/images/train_rel_annot/'
-    else:
-        save_dir = '../dataset/nyuv2/images/train_abs_annot/'
-    os.makedirs(save_dir, exist_ok=True)
-    dataset_file = '' if torch.cuda.is_available() else '/Users/youzunzhi/pro/EVA/source_code/bts/train_test_inputs/nyudepthv2_train_files_with_gt.txt'
-    with open(dataset_file, 'r') as f:
-        for l in f.readlines():
-            depth_path = os.path.join(depth_dir, l.split()[1][1:])
-            depth = np.array(Image.open(depth_path)).astype(np.float)
-            depth /= 1000.
-            labels = get_labels_sid(depth, relative=relative, ordinal_c=10)
-            bin_name = (depth_path.split('/')[-1]).replace('sync_depth_', 'depth_bin_abs10_')
-            save_fname = os.path.join(save_dir, bin_name)
-            cv2.imwrite(save_fname, labels)
 
 
 def get_labels_sid(depth, abs_or_rel, K=10.0):
@@ -180,7 +167,7 @@ def get_labels_sid(depth, abs_or_rel, K=10.0):
 
 def visualize_discretization(depth_min=0, depth_max=10, K=10.):
     depth = np.tile(np.linspace(depth_min, depth_max, 100), (20, 1))
-    labels = get_labels_sid(depth, ordinal_c=K)
+    labels = get_labels_sid(depth, 'rel', K=K)
     import matplotlib.pyplot as plt
     plt.imshow(labels)
     plt.show()
@@ -188,4 +175,5 @@ def visualize_discretization(depth_min=0, depth_max=10, K=10.):
 
 
 if __name__ == '__main__':
-    make_depth_bin_concept('dense', 'abs')
+    # make_depth_bin_concept('dense', 'abs')
+    make_depth_bin_index_csv('dense', 'abs')
