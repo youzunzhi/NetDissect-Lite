@@ -44,36 +44,6 @@ OUTPUT_FOLDER = f"result/{MODEL_NAME}_{DATASET}_{CATAGORIES[0]}" # result will b
 # TALLY_BATCH_SIZE: batch size used in tallying
 # INDEX_FILE: if you turn on the TEST_MODE, actually you should provide this file on your own
 
-# if MODEL != 'alexnet':
-#     DATA_DIRECTORY = 'dataset/broden1_224'
-#     IMG_SIZE = 224
-# else:
-#     DATA_DIRECTORY = 'dataset/broden1_227'
-#     IMG_SIZE = 227
-#
-# if DATASET == 'places365':
-#     NUM_CLASSES = 365
-# elif DATASET == 'imagenet':
-#     NUM_CLASSES = 1000
-# if MODEL == 'resnet18':
-#     FEATURE_NAMES = ['layer4']
-#     if DATASET == 'places365':
-#         MODEL_FILE = 'zoo/resnet18_places365.pth.tar'
-#         MODEL_PARALLEL = True
-#     elif DATASET == 'imagenet':
-#         MODEL_FILE = None
-#         MODEL_PARALLEL = False
-# elif MODEL == 'densenet161':
-#     FEATURE_NAMES = ['features']
-#     if DATASET == 'places365':
-#         MODEL_FILE = 'zoo/whole_densenet161_places365_python36.pth.tar'
-#         MODEL_PARALLEL = False
-# elif MODEL == 'resnet50':
-#     FEATURE_NAMES = ['layer4']
-#     if DATASET == 'places365':
-#         MODEL_FILE = 'zoo/whole_resnet50_places365_python36.pth.tar'
-#         MODEL_PARALLEL = False
-
 if MODEL_NAME == 'MFF_resnet':
     FEATURE_NAMES = ['MFF', 'D']
     # FEATURE_NAMES = ['MFF']
