@@ -68,7 +68,7 @@ def make_depth_bin_index_csv(nyu_dataset, abs_or_rel):
         if nyu_dataset == 'dense':
             rgb_dir = '/work/u2263506/nyu2_data/nyu2_dense' if torch.cuda.is_available() else '/Users/youzunzhi/pro/datasets/nyuv2_depth_data/nyu2_dense'
             for bin_fname in recursive_glob(bin_dir, 'png'):
-                rgb_fname = os.path.join(rgb_dir, bin_fname[bin_fname.find(f'{nyu_dataset}_{abs_or_rel}_annot')+len(f'{nyu_dataset}_{abs_or_rel}_annot/'):]).replace('png', 'jpg').replace('depth', 'color')
+                rgb_fname = os.path.join(rgb_dir, bin_fname[bin_fname.find(f'{nyu_dataset}_{abs_or_rel}_annot')+len(f'{nyu_dataset}_{abs_or_rel}_annot/'):]).replace('png', 'jpg').replace('depth', 'colors')
                 # print(rgb_fname)
                 dataset = 'train' if bin_fname.find('train') != -1 else 'test'
                 write_line = f"{rgb_fname},{dataset},228,304,228,304,{bin_fname}\n"
