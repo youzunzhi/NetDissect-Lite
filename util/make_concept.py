@@ -108,7 +108,7 @@ def print_label_etc():
         print(f"{i},{i + 24},rel-{i},0,0")
 
 
-def make_depth_bin_concept(nyu_dataset, abs_or_rel):
+def make_depth_bin_concept(nyu_dataset, abs_or_rel, only_test):
     """
     :param nyu_dataset: dense|bts_train|official
     :param abs_or_rel: abs|rel
@@ -118,8 +118,11 @@ def make_depth_bin_concept(nyu_dataset, abs_or_rel):
     assert abs_or_rel in ['abs', 'rel']
     if nyu_dataset == 'dense':
         depth_dir = '/work/u2263506/nyu2_data/nyu2_dense' if torch.cuda.is_available() else '/Users/youzunzhi/pro/datasets/nyuv2_depth_data/nyu2_dense'
+        if only_test:
+            depth_dir = os.path.join(depth_dir, 'nyu2_test')
     else:
         raise NotImplementedError
+
     save_dir = f'../dataset/nyuv2/images/{nyu_dataset}_{abs_or_rel}_annot/'
     os.makedirs(save_dir, exist_ok=True)
     for depth_fname in recursive_glob(depth_dir, 'png'):
@@ -155,9 +158,8 @@ def get_labels_sid(depth, abs_or_rel, K=10.0):
         alpha = 1.0
         beta = 11.0
     elif abs_or_rel == 'rel':
-        raise NotImplementedError
-        # alpha = depth[depth != 0].min() + 0.999
-        # beta = depth.max() + 1.
+        alpha = depth[depth != 0].min() + 0.999
+        beta = depth.max() + 1.
     else:
         raise NotImplementedError
 
@@ -179,5 +181,5 @@ def visualize_discretization(depth_min=0, depth_max=10, K=10.):
 
 
 if __name__ == '__main__':
-    make_depth_bin_concept('dense', 'abs')
+    make_depth_bin_concept('dense', 'rel', True)
     # make_depth_bin_index_csv('dense', 'abs')
