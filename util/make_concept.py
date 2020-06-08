@@ -179,5 +179,5 @@ def visualize_discretization(depth_min=0, depth_max=10, K=10.):
 
 
 if __name__ == '__main__':
-    # make_depth_bin_concept('dense', 'abs')
-    make_depth_bin_index_csv('dense', 'abs')
+    make_depth_bin_concept('dense', 'abs')
+    # make_depth_bin_index_csv('dense', 'abs')
