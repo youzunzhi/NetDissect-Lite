@@ -47,7 +47,7 @@ OUTPUT_FOLDER = f"result/{MODEL_NAME}_{DATASET}_{CATAGORIES[0]}" # result will b
 
 if MODEL_NAME == 'MFF_resnet':
     # FEATURE_NAMES = ['MFF', 'D']
-    FEATURE_NAMES = ['MFF']
+    FEATURE_NAMES = ['D']
 else:
 
     raise NotImplementedError
