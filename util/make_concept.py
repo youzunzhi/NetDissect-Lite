@@ -3,7 +3,7 @@ from PIL import Image
 import numpy as np
 import cv2
 import torch
-
+import matplotlib.pyplot as plt
 
 def make_index_csv_trash():
     # import csv
@@ -175,14 +175,47 @@ def get_labels_sid(depth, abs_or_rel, K=10.0):
 
 
 def visualize_discretization(depth_min=0, depth_max=10, K=10.):
-    depth = np.tile(np.linspace(depth_min, depth_max, 100), (20, 1))
-    labels = get_labels_sid(depth, 'rel', K=K)
+    depth = np.tile(np.linspace(depth_min, depth_max, 1000), (500, 1))
+    labels = get_labels_sid(depth, 'abs', K=K)
     import matplotlib.pyplot as plt
     plt.imshow(labels)
+    # plt.xticks(np.arange(depth.min(), depth_max+0.5, 0.5))
     plt.show()
     plt.close()
 
+def compute_label_range():
+    # 计算每个label的边界值
+    a = np.linspace(0, 10, 10000)
+    cur_label = 0
+    for i in a:
+        label = 10. * np.log((i + 0.999) / 1.) / np.log(11. / 1)
+        label = label.astype(np.int) + 1
+        if cur_label < label:
+            print(i)
+            cur_label = label
+
+def show_depth_bin():
+    # dep_p = '/Users/youzunzhi/pro/datasets/nyuv2_depth_data/nyu2_dense/nyu2_test/00016_depth.png'
+    # abs_p = '/Users/youzunzhi/pro/EVA/code/NetDissect-Lite/dataset/nyuv2/images/dense_abs_annot/nyu2_test/00016_depth.png'
+    # rel_p = '/Users/youzunzhi/pro/EVA/code/NetDissect-Lite/dataset/nyuv2/images/dense_rel_annot/nyu2_test/00016_depth.png'
+    dep_p = '/Users/youzunzhi/pro/datasets/nyuv2_depth_data/nyu2_dense/nyu2_test/00000_depth.png'
+    abs_p = '/Users/youzunzhi/pro/EVA/code/NetDissect-Lite/dataset/nyuv2/images/dense_abs_annot/nyu2_test/00000_depth.png'
+    rel_p = '/Users/youzunzhi/pro/EVA/code/NetDissect-Lite/dataset/nyuv2/images/dense_rel_annot/nyu2_test/00000_depth.png'
+    dep = np.array(Image.open(dep_p)).astype(np.float)/1000.
+    ab = np.array(Image.open(abs_p))
+    rel = np.array(Image.open(rel_p))
+    fig, ax = plt.subplots(1, 3, figsize=(17,5))
+    ax0 = ax[0].imshow(dep)
+    ax1 = ax[1].imshow(ab)
+    ax2 = ax[2].imshow(rel)
+    fig.colorbar(ax0, ax=ax[0])
+    fig.colorbar(ax1, ax=ax[1])
+    fig.colorbar(ax2, ax=ax[2])
+    save_fname = 'depth_bin.png'
+    fig.savefig(save_fname, bbox_inches='tight')
+    plt.close(fig)
 
 if __name__ == '__main__':
     # make_depth_bin_concept('dense', 'rel', True)
-    make_depth_bin_index_csv('dense', 'abs', True)
+    # make_depth_bin_index_csv('dense', 'abs', True)
+    show_depth_bin()
