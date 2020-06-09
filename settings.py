@@ -22,7 +22,7 @@ CLEAN = True                                # set to "True" if you want to clean
 MODEL_NAME = 'MFF_resnet'                   # model arch: mff_resnet
 MODEL_WEIGHTS_FILE = model_dicts[MODEL_NAME]
 DATASET = 'nyu'                             # model trained on: nyu
-CATAGORIES = ["sem"]                        # concept categories that are chosen to detect: sem|abs|rel
+CATAGORIES = ["abs"]                        # concept categories that are chosen to detect: sem|abs|rel
 DATA_DIRECTORY = f'dataset/nyuv2/{CATAGORIES[0]}_csv'
 IMG_SIZE = [228, 304]
 QUANTILE = 0.005                            # the threshold used for activation
@@ -47,7 +47,7 @@ OUTPUT_FOLDER = f"result/{MODEL_NAME}_{DATASET}_{CATAGORIES[0]}" # result will b
 
 if MODEL_NAME == 'MFF_resnet':
     # FEATURE_NAMES = ['MFF', 'D']
-    FEATURE_NAMES = ['D']
+    FEATURE_NAMES = ['MFF']
 else:
 
     raise NotImplementedError
@@ -65,6 +65,7 @@ else:
     BATCH_SIZE = 16
     TALLY_BATCH_SIZE = 2
     TALLY_AHEAD = 1
-    INDEX_FILE = f'index.csv'
-    # INDEX_FILE = f'dense_{CATAGORIES[0]}_index.csv'
-    # assert INDEX_FILE.find(CATAGORIES[0])!=-1
+    # INDEX_FILE = f'index.csv'
+    if CATAGORIES[0] != 'sem':
+        INDEX_FILE = f'dense_{CATAGORIES[0]}_index.csv'
+        assert INDEX_FILE.find(CATAGORIES[0])!=-1
