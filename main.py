@@ -27,5 +27,5 @@ for layer_id,layer in enumerate(settings.FEATURE_NAMES):
                           features=features[layer_id],
                           thresholds=thresholds)
     print('End of STEP 4')
-    # if settings.CLEAN:
-    #     clean()
+if settings.CLEAN:
+    clean()
