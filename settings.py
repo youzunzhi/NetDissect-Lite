@@ -30,7 +30,7 @@ SEG_THRESHOLD = 0.04                        # the threshold used for visualizati
 SCORE_THRESHOLD = 0.04                      # the threshold used for IoU score (in HTML file)
 TOPN = 10                                   # to show top N image with highest activation for each unit
 PARALLEL = 1                                # how many process is used for tallying (Experiments show that 1 is the fastest)
-OUTPUT_FOLDER = f"result/{MODEL_NAME}_{DATASET}_{CATAGORIES[0]}" # result will be stored in this folder
+OUTPUT_FOLDER = f"result/{MODEL_NAME}_{DATASET}_{CATAGORIES[0]}_dense" # result will be stored in this folder
 
 ########### sub settings ###########
 # In most of the case, you don't have to change them.
@@ -63,5 +63,5 @@ else:
     BATCH_SIZE = 16
     TALLY_BATCH_SIZE = 2
     TALLY_AHEAD = 1
-    INDEX_FILE = 'index.csv'
+    INDEX_FILE = 'index_dense.csv'
     # assert INDEX_FILE.find(CATAGORIES[0])!=-1
