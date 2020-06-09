@@ -53,7 +53,7 @@ def make_sem_index_csv():
                 f.write(write_line)
 
 
-def make_depth_bin_index_csv(nyu_dataset, abs_or_rel):
+def make_depth_bin_index_csv(nyu_dataset, abs_or_rel, only_test):
     """
     :param nyu_dataset: dense|bts_train|official
     :param abs_or_rel: abs|rel
@@ -61,11 +61,14 @@ def make_depth_bin_index_csv(nyu_dataset, abs_or_rel):
     """
     root_dir = '/home/u2263506/NetDissect-Lite/dataset/nyuv2/' if torch.cuda.is_available() else '/Users/youzunzhi/pro/EVA/code/NetDissect-Lite/dataset/nyuv2/'
     fn = os.path.join(os.path.join(root_dir, f'{abs_or_rel}_csv'), f'{nyu_dataset}_{abs_or_rel}_index.csv')
+    if not only_test: fn.replace('.csv', '_traintest.csv')
     print(fn)
     with open(fn, 'w') as f:
         f.write(f'image,split,ih,iw,sh,sw,{abs_or_rel}\n')
         bin_dir = os.path.join(root_dir, f'images/{nyu_dataset}_{abs_or_rel}_annot/')
         if nyu_dataset == 'dense':
+            if only_test:
+                bin_dir = os.path.join(bin_dir, 'nyu2_test')
             rgb_dir = '/work/u2263506/nyu2_data/nyu2_dense' if torch.cuda.is_available() else '/Users/youzunzhi/pro/datasets/nyuv2_depth_data/nyu2_dense'
             for bin_fname in recursive_glob(bin_dir, 'png'):
                 rgb_fname = os.path.join(rgb_dir, bin_fname[bin_fname.find(f'{nyu_dataset}_{abs_or_rel}_annot')+len(f'{nyu_dataset}_{abs_or_rel}_annot/'):])
@@ -181,5 +184,5 @@ def visualize_discretization(depth_min=0, depth_max=10, K=10.):
 
 
 if __name__ == '__main__':
-    make_depth_bin_concept('dense', 'rel', True)
-    # make_depth_bin_index_csv('dense', 'abs')
+    # make_depth_bin_concept('dense', 'rel', True)
+    make_depth_bin_index_csv('dense', 'abs', True)
