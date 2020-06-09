@@ -116,7 +116,7 @@ class FeatureOperator:
         quant = vecquantile.QuantileVector(depth=features.shape[1], seed=1)
         start_time = time.time()
         last_batch_time = start_time
-        batch_size = 64
+        batch_size = 1
         for i in range(0, features.shape[0], batch_size):
             batch_time = time.time()
             rate = i / (batch_time - start_time + 1e-15)
@@ -124,6 +124,7 @@ class FeatureOperator:
             last_batch_time = batch_time
             print('Processing quantile index %d: %f %f' % (i, rate, batch_rate))
             batch = features[i:i + batch_size]
+            print('batch[:,8].max(): ', batch[:,8].max())
             batch = np.transpose(batch, axes=(0, 2, 3, 1)).reshape(-1, features.shape[1])
             quant.add(batch)
         ret = quant.readout(1000)[:, int(1000 * (1-settings.QUANTILE)-1)]
