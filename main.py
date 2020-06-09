@@ -10,7 +10,7 @@ model = loadmodel(hook_feature)
 ############ STEP 1: feature extraction ###############
 features, maxfeature = fo.feature_extraction(model=model)
 print('End of STEP 1')
-
+assert False
 for layer_id,layer in enumerate(settings.FEATURE_NAMES):
 ############ STEP 2: calculating threshold ############
     thresholds = fo.quantile_threshold(features[layer_id],savepath=f"quantile_{layer}.npy")

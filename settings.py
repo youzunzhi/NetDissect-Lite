@@ -22,7 +22,7 @@ CLEAN = True                                # set to "True" if you want to clean
 MODEL_NAME = 'MFF_resnet'                   # model arch: mff_resnet
 MODEL_WEIGHTS_FILE = model_dicts[MODEL_NAME]
 DATASET = 'nyu'                             # model trained on: nyu
-CATAGORIES = ["rel"]                        # concept categories that are chosen to detect: sem|abs|rel
+CATAGORIES = ["abs"]                        # concept categories that are chosen to detect: sem|abs|rel
 DATA_DIRECTORY = f'dataset/nyuv2/{CATAGORIES[0]}_csv'
 IMG_SIZE = [228, 304]
 QUANTILE = 0.005                            # the threshold used for activation
@@ -46,9 +46,10 @@ OUTPUT_FOLDER = f"result/{MODEL_NAME}_{DATASET}_{CATAGORIES[0]}" # result will b
 # INDEX_FILE: if you turn on the TEST_MODE, actually you should provide this file on your own
 
 if MODEL_NAME == 'MFF_resnet':
-    FEATURE_NAMES = ['MFF', 'D']
-    # FEATURE_NAMES = ['MFF']
+    # FEATURE_NAMES = ['MFF', 'D']
+    FEATURE_NAMES = ['D']
 else:
+
     raise NotImplementedError
 
 if TEST_MODE:
