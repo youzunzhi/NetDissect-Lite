@@ -46,8 +46,8 @@ OUTPUT_FOLDER = f"result/{MODEL_NAME}_{DATASET}_{CATAGORIES[0]}" # result will b
 # INDEX_FILE: if you turn on the TEST_MODE, actually you should provide this file on your own
 
 if MODEL_NAME == 'MFF_resnet':
-    FEATURE_NAMES = ['MFF', 'D']
-    # FEATURE_NAMES = ['MFF']
+    # FEATURE_NAMES = ['MFF', 'D']
+    FEATURE_NAMES = ['MFF']
 else:
     raise NotImplementedError
 
