@@ -16,8 +16,8 @@ else:
 
 ######### global settings  #########
 GPU = torch.cuda.is_available()             # running on GPU is highly suggested
-# TEST_MODE = not torch.cuda.is_available()       # turning on the testmode means the code will run on a small nyu_dataset.
-TEST_MODE = True       # turning on the testmode means the code will run on a small nyu_dataset.
+TEST_MODE = not torch.cuda.is_available()       # turning on the testmode means the code will run on a small nyu_dataset.
+# TEST_MODE = True       # turning on the testmode means the code will run on a small nyu_dataset.
 CLEAN = True                                # set to "True" if you want to clean the temporary large files after generating result
 MODEL_NAME = 'MFF_resnet'                   # model arch: mff_resnet
 MODEL_WEIGHTS_FILE = model_dicts[MODEL_NAME]
@@ -46,8 +46,8 @@ OUTPUT_FOLDER = f"result/{MODEL_NAME}_{DATASET}_{CATAGORIES[0]}" # result will b
 # INDEX_FILE: if you turn on the TEST_MODE, actually you should provide this file on your own
 
 if MODEL_NAME == 'MFF_resnet':
-    # FEATURE_NAMES = ['MFF', 'D']
-    FEATURE_NAMES = ['MFF']
+    FEATURE_NAMES = ['MFF', 'D']
+    # FEATURE_NAMES = ['MFF']
 else:
     raise NotImplementedError
 
@@ -57,11 +57,11 @@ if TEST_MODE:
     TALLY_BATCH_SIZE = 2
     TALLY_AHEAD = 1
     INDEX_FILE = 'index_sm.csv' # copy some lines(as you like) from file 'nyu_dataset/broden1_224/index.csv'.
-    OUTPUT_FOLDER += "_test"
+    OUTPUT_FOLDER += "_debug"
 else:
     WORKERS = 1
     BATCH_SIZE = 16
     TALLY_BATCH_SIZE = 2
     TALLY_AHEAD = 1
-    INDEX_FILE = 'index_sm.csv'
-    assert INDEX_FILE.find(CATAGORIES[0])!=-1
+    INDEX_FILE = 'index.csv'
+    # assert INDEX_FILE.find(CATAGORIES[0])!=-1
