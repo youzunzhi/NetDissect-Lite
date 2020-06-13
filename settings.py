@@ -47,8 +47,8 @@ OUTPUT_FOLDER = f"result/{MODEL_NAME}_{DATASET}_{CATAGORIES[0]}" # result will b
 
 # if multiple layer, make sure the order is the same as they are in the network
 if MODEL_NAME == 'MFF_resnet':
-    FEATURE_NAMES = ['D', 'MFF']
-    # FEATURE_NAMES = ['R']
+    # FEATURE_NAMES = ['D', 'MFF']
+    FEATURE_NAMES = [('R_relu1')]
 else:
 
     raise NotImplementedError
