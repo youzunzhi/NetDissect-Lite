@@ -18,7 +18,7 @@ else:
 GPU = torch.cuda.is_available()             # running on GPU is highly suggested
 TEST_MODE = not torch.cuda.is_available()       # turning on the testmode means the code will run on a small nyu_dataset.
 # TEST_MODE = True       # turning on the testmode means the code will run on a small nyu_dataset.
-CLEAN = True                                # set to "True" if you want to clean the temporary large files after generating result
+CLEAN = False                                # set to "True" if you want to clean the temporary large files after generating result
 MODEL_NAME = 'MFF_resnet'                   # model arch: mff_resnet
 MODEL_WEIGHTS_FILE = model_dicts[MODEL_NAME]
 DATASET = 'nyu'                             # model trained on: nyu
